@@ -1,0 +1,28 @@
+name: Trace punycode Deprecation Source
+
+on:
+  workflow_dispatch:
+  # push:
+
+jobs:
+  trace-punycode:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      # This enables full Node.js deprecation stack traces for all subsequent node processes
+      - name: Enable Node.js deprecation traces for all steps
+        run: echo 'NODE_OPTIONS="--trace-deprecation"' >> $GITHUB_ENV
+
+      - name: Setup .NET 8.0 (expect punycode deprecation warning with stack trace)
+        uses: actions/setup-dotnet@v5
+        with:
+          dotnet-version: 8.0.x
+
+      - name: Upload logs (optional for easier analysis)
+        uses: actions/upload-artifact@v4
+        with:
+          name: logs
+          path: ${{ github.workspace }}

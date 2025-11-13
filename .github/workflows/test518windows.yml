@@ -1,0 +1,38 @@
+name: Reproduce setup-dotnet Permission Issue on Windows Self-hosted Runners
+
+on:
+  workflow_dispatch:
+
+jobs:
+  windows-dotnet-install-test:
+    runs-on: self-hosted
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Setup .NET (expecting possible permission issue)
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: '6.0.x'
+
+      - name: Print dotnet info
+        run: dotnet --info
+
+      - name: Print environment variables
+        run: |
+          echo "USERPROFILE: $env:USERPROFILE"
+          echo "RUNNER_TEMP: $env:RUNNER_TEMP"
+          echo "DOTNET_INSTALL_DIR: $env:DOTNET_INSTALL_DIR"
+
+      - name: Find .NET installation directories
+        run: |
+          Write-Output "Searching for dotnet installations..."
+          Get-ChildItem -Path "C:\Program Files\dotnet" -ErrorAction SilentlyContinue | Write-Output
+          Get-ChildItem -Path "$env:USERPROFILE\.dotnet" -ErrorAction SilentlyContinue | Write-Output
+          Get-ChildItem -Path "$env:RUNNER_TEMP\.dotnet" -ErrorAction SilentlyContinue | Write-Output
+
+      - name: Print permissions for Program Files dotnet
+        run: |
+          $acl = Get-Acl "C:\Program Files\dotnet"
+          $acl | Format-List
+        continue-on-error: true

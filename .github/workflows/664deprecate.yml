@@ -1,0 +1,26 @@
+name: Reproduce punycode Deprecation Warning in setup-dotnet
+
+on:
+  workflow_dispatch:
+  # push:
+
+jobs:
+  setup-dotnet:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Setup .NET 8.0 (triggers punycode warning)
+        # uses: lmvysakh/setup-dotnet@resolve_punycode
+        uses: lmvysakh/setup-dotnet@resolve_punycode_4
+        # uses: aparnajyothi-y/setup-dotnet@fix-punycode-warning-deprication
+        with:
+          dotnet-version: 8.0.x
+
+      - name: Display .NET version
+        run: dotnet --version
+
+      - name: Show npm dependency tree for uri-js and punycode
+        run: npm ls uri-js punycode || true

@@ -1,0 +1,60 @@
+name: Reproduce setup-dotnet Permission Issue on Ubuntu Self-hosted Runners
+
+on:
+  workflow_dispatch:
+  # push:
+  #   branches:
+  #     - main
+
+jobs:
+  ubuntu-dotnet-install-test:
+    name: Ubuntu Dotnet Install Test (Self-hosted)
+    runs-on: self-hosted
+    strategy:
+      matrix:
+        ubuntu-label: [ubuntu-20.04, ubuntu-22.04, ubuntu-24.04]
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up runner label
+        run: echo "Running on ${{ matrix.ubuntu-label }}"
+
+      # Updated: Always use $RUNNER_TEMP/.dotnet for install dir
+      - name: Set dotnet install directory
+        id: dotnetdir
+        run: |
+          DOTNET_DIR="${RUNNER_TEMP}/.dotnet"
+          mkdir -p "$DOTNET_DIR"
+          echo "dir=$DOTNET_DIR" >> $GITHUB_OUTPUT
+
+      - name: Set DOTNET_ROOT environment variable
+        run: |
+          echo "DOTNET_ROOT=${{ steps.dotnetdir.outputs.dir }}" >> $GITHUB_ENV
+
+      - name: Add .NET to PATH
+        run: |
+          echo "${{ steps.dotnetdir.outputs.dir }}" >> $GITHUB_PATH
+
+      - name: Setup .NET using detected install directory
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: '6.0.x'
+          dotnet-install-dir: ${{ steps.dotnetdir.outputs.dir }}
+
+      - name: Print dotnet info and installation directories
+        run: |
+          echo "Dotnet info:"
+          dotnet --info || echo "dotnet not installed"
+          echo "Used install directory: ${{ steps.dotnetdir.outputs.dir }}"
+          echo "Checking /usr/share/dotnet:"
+          ls -al /usr/share/dotnet || echo "/usr/share/dotnet does not exist or inaccessible"
+          echo "Checking /usr/lib/dotnet:"
+          ls -al /usr/lib/dotnet || echo "/usr/lib/dotnet does not exist or inaccessible"
+          echo "Checking $HOME/.dotnet:"
+          ls -al $HOME/.dotnet || echo "$HOME/.dotnet does not exist or inaccessible"
+          echo "Checking $RUNNER_TEMP/.dotnet:"
+          ls -al $RUNNER_TEMP/.dotnet || echo "$RUNNER_TEMP/.dotnet does not exist or inaccessible"
+          echo "Current user:"
+          whoami
+        shell: bash
