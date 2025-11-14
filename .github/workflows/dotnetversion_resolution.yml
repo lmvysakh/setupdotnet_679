@@ -1,11 +1,10 @@
-name: Minimal Setup-Dotnet Version Check
+name: Minimal Setup-Dotnet Version Check - Resolution 1
 
 on:
-#  push:
-#     branches:
-#       - main
- workflow_dispatch:
-  
+  push:
+    branches:
+      - main
+  workflow_dispatch:
 
 jobs:
   check_setup_dotnet_version:
@@ -21,6 +20,11 @@ jobs:
           dotnet-version: '8.x'
         env:
           PROCESSOR_ARCHITECTURE: x86 # Or omit this if not needed
+
+      - name: Set DOTNET_ROOT and update PATH
+        run: |
+          echo "DOTNET_ROOT=$HOME/.dotnet" >> $GITHUB_ENV
+          echo "$HOME/.dotnet" >> $GITHUB_PATH
 
       - name: Show dotnet info
         run: dotnet --info
