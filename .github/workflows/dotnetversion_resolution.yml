@@ -11,6 +11,9 @@ jobs:
     runs-on: self-hosted
 
     steps:
+      - name: Remove global dotnet
+        run: rm -rf /usr/local/share/dotnet ~/.dotnet
+
       - name: Checkout repository
         uses: actions/checkout@v5
 
