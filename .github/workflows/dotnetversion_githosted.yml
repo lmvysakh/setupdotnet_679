@@ -20,6 +20,8 @@ jobs:
         with:
           # dotnet-version: '8.x'
           global-json-file: global.json
+        # env:
+        #   PROCESSOR_ARCHITECTURE: x86 # Or omit this if not needed
 
       - name: Show dotnet info
         run: dotnet --info
