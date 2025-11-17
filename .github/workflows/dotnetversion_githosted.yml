@@ -1,0 +1,29 @@
+name: Minimal Setup-Dotnet Version Check - Githosted windows
+
+on:
+ push:
+    branches:
+      - main
+ workflow_dispatch:
+  
+
+jobs:
+  check_setup_dotnet_version:
+    runs-on: windows-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v5
+
+      - name: Use .NET 8.x
+        uses: actions/setup-dotnet@v5
+        with:
+          dotnet-version: '8.x'
+        env:
+          PROCESSOR_ARCHITECTURE: x86 # Or omit this if not needed
+
+      - name: Show dotnet info
+        run: dotnet --info
+
+      - name: Test dotnet new
+        run: dotnet new console -o HelloWorld
